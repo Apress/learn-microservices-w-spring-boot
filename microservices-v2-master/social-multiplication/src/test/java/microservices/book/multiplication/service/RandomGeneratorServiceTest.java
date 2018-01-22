@@ -28,7 +28,7 @@ public class RandomGeneratorServiceTest {
 
         // then all of them should be between 11 and 100
         // because we want a middle-complexity calculation
-        assertThat(randomFactors).containsOnlyElementsOf(IntStream.range(11, 100)
+        assertThat(randomFactors).isSubsetOf(IntStream.range(11, 100)
                 .boxed().collect(Collectors.toList()));
     }
 
