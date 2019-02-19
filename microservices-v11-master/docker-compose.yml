@@ -1,0 +1,96 @@
+version: '3.3'
+
+services:
+
+  # RABBITMQ - message bus/broker
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: rabbitmq
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - "~/etc/rabbitmq-data:/var/lib/rabbitmq/mnesia"
+
+  # EUREKA - service discovery
+  service-registry:
+    container_name: service-registry
+    hostname: service-registry
+    build: ./service-registry
+    ports:
+      - "8761:8761"
+    volumes:
+      - "~/etc/service-registry-tmp:/tmp"
+    tty:
+      true
+
+  # ZUUL - API Gateway
+  gateway:
+    container_name: gateway
+    hostname: gateway
+    build: ./gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - "~/etc/gateway-tmp:/tmp"
+    depends_on:
+      - service-registry
+    environment:
+      - REGISTRY_HOST=service-registry
+    tty:
+      true
+
+  social-multiplication:
+    container_name: social-multiplication
+    hostname: social-multiplication
+    build: ./social-multiplication
+    ports:
+      - "8080:8080"
+    volumes:
+      - "~/etc/social-multiplication-data:/data/social-multiplication"
+      - "~/etc/social-multiplication-tmp:/tmp"
+    depends_on:
+      - rabbitmq
+      - service-registry
+      - gateway
+    environment:
+      - MULTIPLICATION_HOST=social-multiplication
+      - MULTIPLICATION_PORT=8080
+      - MULTIPLICATION_DATA=/data/social-multiplication
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      - REGISTRY_HOST=service-registry
+    tty:
+      true
+
+  gamification:
+    container_name: gamification
+    hostname: gamification
+    build: ./gamification
+    ports:
+      - "8081:8081"
+    volumes:
+      - "~/etc/gamification-data:/data/gamification"
+      - "~/etc/gamification-tmp:/tmp"
+    depends_on:
+      - rabbitmq
+      - service-registry
+      - gateway
+      - social-multiplication
+    environment:
+      - GAMIFICATION_PORT=8081
+      - GAMIFICATION_DATA=/data/gamification
+      - MULTIPLICATION_HOST=social-multiplication
+      - MULTIPLICATION_PORT=8080
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      - REGISTRY_HOST=service-registry
+      - GATEWAY_HOST=gateway
+      - GATEWAY_PORT=8000
+    tty:
+      true

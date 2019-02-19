@@ -1,0 +1,63 @@
+server:
+    port: 8081
+
+spring:
+    application:
+        name: gamification
+    # Gives us access to the H2 database web console
+    h2:
+        console:
+            enabled: true
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                show_sql: true
+    datasource:
+        url: jdbc:h2:file:~/gamification;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
+
+# Switch Eureka-Usage on & off
+ribbon:
+  eureka:
+    enabled: true
+
+# register with EUREKA registry
+eureka:
+  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
+    healthcheck:
+      enabled: true
+
+# set to OFF to avoid  log "pollution" if Eureka isn't up or found 
+logging:
+  level:
+    com:
+      netflix:
+        eureka: OFF
+        discovery: OFF
+
+# Spring Boot actuator
+management:
+    endpoints:
+        enabled-by-default: true
+        web:
+            exposure:
+                include: "*"
+                exclude: "shutdown"
+
+## RabbitMQ configuration
+multiplication:
+    exchange: multiplication_exchange
+    solved:
+        key: multiplication.solved
+    queue: gamification_multiplication_queue
+    anything:
+        routing-key: multiplication.*
+
+# REST client settings
+multiplicationHost: http://localhost:8000/api
+
