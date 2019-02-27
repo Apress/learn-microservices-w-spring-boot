@@ -1,0 +1,23 @@
+server:
+    port: 8080
+#    port: 0
+
+spring:
+    # Gives us access to the H2 database web console
+    h2:
+        console:
+            enabled: true
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                show_sql: true
+    datasource:
+        url: jdbc:h2:file:~/social-multiplication;DB_CLOSE_ON_EXIT=FALSE;
+
+## RabbitMQ configuration
+multiplication:
+    exchange: multiplication_exchange
+    solved:
+        key: multiplication.solved

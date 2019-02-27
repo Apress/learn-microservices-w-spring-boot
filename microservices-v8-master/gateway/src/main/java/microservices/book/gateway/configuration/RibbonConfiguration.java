@@ -11,7 +11,8 @@ public class RibbonConfiguration {
 
     @Bean
     public IPing ribbonPing(final IClientConfig config) {
-        return new PingUrl(false,"/health");
+        // BOOT2: /health available under /actuator/health
+        return new PingUrl(false,"/actuator/health");
     }
 
     @Bean

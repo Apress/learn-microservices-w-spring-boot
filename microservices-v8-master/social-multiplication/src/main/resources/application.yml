@@ -1,0 +1,53 @@
+server:
+    port: 8080
+#  port: 0
+
+spring:
+    # Gives us access to the H2 database web console
+    h2:
+        console:
+            enabled: true
+    jpa:
+        hibernate:
+            # Generates the database *only* if it's not there yet
+            ddl-auto: update
+        properties:
+            hibernate:
+                # For educational purposes we will show the SQL in console
+                show_sql: true
+    datasource:
+        # Creates the database in a file
+        url: jdbc:h2:file:~/social-multiplication;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
+
+# Service Discovery configuration
+eureka:
+    client:
+        register-with-eureka: true
+        fetch-registry: true
+        service-url:
+            default-zone: http://localhost:8761/eureka/
+        healthcheck:
+            enabled: true
+
+# set to OFF to avoid  log "pollution" if Eureka isn't up or found 
+logging:
+  level:
+    com:
+      netflix:
+        eureka: OFF
+        discovery: OFF
+
+# Spring Boot actuator
+management:
+    endpoints:
+        enabled-by-default: true
+        web:
+            exposure:
+                include: "*"
+                exclude: "shutdown"
+
+## RabbitMQ configuration
+multiplication:
+    exchange: multiplication_exchange
+    solved:
+        key: multiplication.solved
