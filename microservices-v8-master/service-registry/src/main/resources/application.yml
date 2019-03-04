@@ -5,6 +5,9 @@ eureka:
     client:
         registerWithEureka: true
         fetchRegistry: true
+    instance:
+        hostname: ${spring.application.name:localhost}
+        prefer-ip-address: true
 
 # set to OFF to avoid  log "pollution" if Eureka isn't up or found 
 logging:

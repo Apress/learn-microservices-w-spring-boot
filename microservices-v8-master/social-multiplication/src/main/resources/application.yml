@@ -1,3 +1,7 @@
+application:
+    data:
+        path: "~"
+
 server:
     port: 8080
 #  port: 0
@@ -17,17 +21,22 @@ spring:
                 show_sql: true
     datasource:
         # Creates the database in a file
-        url: jdbc:h2:file:~/social-multiplication;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
+        url: jdbc:h2:file:${application.data.path}/social-multiplication;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
+    rabbitmq:
+        host: localhost
 
 # Service Discovery configuration
 eureka:
     client:
         register-with-eureka: true
         fetch-registry: true
-        service-url:
-            default-zone: http://localhost:8761/eureka/
+        serviceUrl:
+            defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
         healthcheck:
             enabled: true
+    instance:
+        hostname: ${spring.application.name:localhost}
+#        prefer-ip-address: true
 
 # set to OFF to avoid  log "pollution" if Eureka isn't up or found 
 logging:
@@ -51,3 +60,4 @@ multiplication:
     exchange: multiplication_exchange
     solved:
         key: multiplication.solved
+
