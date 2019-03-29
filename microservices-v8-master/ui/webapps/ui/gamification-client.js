@@ -1,4 +1,5 @@
-var SERVER_URL = "http://localhost:8000/api";
+var SERVER_URL = "http://localhost:9000";
+//var SERVER_URL = "http://localhost:8000/api";
 //var SERVER_URL = "http://gateway:8000/api";
 //var SERVER_URL = "http://172.22.0.4:8000/api";
 //var SERVER_URL = "http://gamification:8081";

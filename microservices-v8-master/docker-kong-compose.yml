@@ -28,25 +28,7 @@ services:
     tty: true
     networks:
       demonet:
-
-  # ZUUL - API Gateway
-  gateway:
-    container_name: gateway
-    hostname: gateway
-    build: ./gateway
-    ports:
-      - "8000:8000"
-    volumes:
-      - type: tmpfs
-        target: /tmp
-    depends_on:
-      - registry
-#    environment:
-#      - REGISTRY_HOST=registry
-#      - REGISTRY_PORT=8761
-    tty: true
-    networks:
-      demonet:
+      kong-network:
 
   multiplication:
     container_name: multiplication
@@ -63,7 +45,6 @@ services:
     depends_on:
       - rabbitmq
       - registry
-      - gateway
 #    environment:
 #      - SPRING_RABBITMQ_HOST=rabbitmq
 #      - SPRING_RABBITMQ_PORT=5672
@@ -74,6 +55,7 @@ services:
     tty: true
     networks:
       demonet:
+      kong-network:
 
   gamification:
     container_name: gamification
@@ -90,9 +72,8 @@ services:
     depends_on:
       - rabbitmq
       - registry
-      - gateway
       - multiplication
-#    environment:
+    environment:
 #      - APPLICATION_DATA_PATH=/data/gamification
 #      - SPRING_RABBITMQ_HOST=rabbitmq
 #      - SPRING_RABBITMQ_PORT=5672
@@ -100,11 +81,12 @@ services:
 #      - SPRING_RABBITMQ_PASSWORD=guest
 #      - REGISTRY_HOST=registry
 #      - REGISTRY_PORT=8761
-#      - GATEWAY_HOST=gateway
-#      - GATEWAY_PORT=8000
+      - GATEWAY_HOST=kong
+      - GATEWAY_PORT=9000
     tty: true
     networks:
       demonet:
+      kong-network:
 
   user-interface:
     container_name: user-interface
@@ -115,15 +97,19 @@ services:
     volumes:
       - type: tmpfs
         target: /tmp/jetty
-    depends_on:
-      - gateway
+#    depends_on:
+#      - gateway
     tty: true
     networks:
       demonet:
+      kong-network:
 
 networks:
   demonet:
     name: demonet
+  kong-network:
+    external:
+      name: kong-network
 
 volumes:
   multiplication-data:
