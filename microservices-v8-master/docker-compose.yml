@@ -1,0 +1,130 @@
+version: '3.5'
+
+services:
+  # RABBITMQ - message bus/broker
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: rabbitmq
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - type: tmpfs
+        target: /var/lib/rabbitmq/mnesia
+    networks:
+      demonet:
+
+  # EUREKA - service discovery
+  registry:
+    container_name: registry
+    hostname: registry
+    build: ./service-registry
+    ports:
+      - "8761:8761"
+    volumes:
+      - type: tmpfs
+        target: /tmp
+    tty: true
+    networks:
+      demonet:
+
+  # ZUUL - API Gateway
+  gateway:
+    container_name: gateway
+    hostname: gateway
+    build: ./gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: tmpfs
+        target: /tmp
+    depends_on:
+      - registry
+#    environment:
+#      - REGISTRY_HOST=registry
+#      - REGISTRY_PORT=8761
+    tty: true
+    networks:
+      demonet:
+
+  multiplication:
+    container_name: multiplication
+    hostname: multiplication
+    build: ./social-multiplication
+    ports:
+      - "8080:8080"
+    volumes:
+      - type: volume
+        source: multiplication-data
+        target: /data/multiplication
+      - type: tmpfs
+        target: /tmp
+    depends_on:
+      - rabbitmq
+      - registry
+      - gateway
+#    environment:
+#      - SPRING_RABBITMQ_HOST=rabbitmq
+#      - SPRING_RABBITMQ_PORT=5672
+#      - SPRING_RABBITMQ_USERNAME=guest
+#      - SPRING_RABBITMQ_PASSWORD=guest
+#      - REGISTRY_HOST=registry
+#      - REGISTRY_PORT=8761
+    tty: true
+    networks:
+      demonet:
+
+  gamification:
+    container_name: gamification
+    hostname: gamification
+    build: ./gamification
+    ports:
+      - "8081:8081"
+    volumes:
+      - type: volume
+        source: gamification-data
+        target: /data/gamification
+      - type: tmpfs
+        target: /tmp
+    depends_on:
+      - rabbitmq
+      - registry
+      - gateway
+      - multiplication
+#    environment:
+#      - APPLICATION_DATA_PATH=/data/gamification
+#      - SPRING_RABBITMQ_HOST=rabbitmq
+#      - SPRING_RABBITMQ_PORT=5672
+#      - SPRING_RABBITMQ_USERNAME=guest
+#      - SPRING_RABBITMQ_PASSWORD=guest
+#      - REGISTRY_HOST=registry
+#      - REGISTRY_PORT=8761
+#      - GATEWAY_HOST=gateway
+#      - GATEWAY_PORT=8000
+    tty: true
+    networks:
+      demonet:
+
+  user-interface:
+    container_name: user-interface
+    hostname: user-interface
+    build: ./ui
+    ports:
+      - 9090:9090
+    volumes:
+      - type: tmpfs
+        target: /tmp/jetty
+    depends_on:
+      - gateway
+    tty: true
+    networks:
+      demonet:
+
+networks:
+  demonet:
+    name: demonet
+
+volumes:
+  multiplication-data:
+  gamification-data:

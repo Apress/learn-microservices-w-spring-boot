@@ -16,7 +16,8 @@ zuul:
     stats:
       path: /stats/**
       url: http://localhost:8081/stats
-
+#  include-debug-header: true
+  
 endpoints:
   trace:
     sensitive: false

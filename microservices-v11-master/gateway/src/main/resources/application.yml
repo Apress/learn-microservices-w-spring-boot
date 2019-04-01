@@ -1,0 +1,96 @@
+spring:
+  application:
+    name: gateway
+  main:
+    allow-bean-definition-overriding: true
+
+server:
+  port: 8000
+
+zuul:
+  prefix: /api
+  ignoredServices: '*'
+  routes:
+    multiplications:
+      path: /multiplications/**
+      serviceId: multiplication
+      strip-prefix: false
+    results:
+      path: /results/**
+      serviceId: multiplication
+      strip-prefix: false
+    users:
+      path: /users/**
+      serviceId: multiplication
+      strip-prefix: false
+    leaders:
+      path: /leaders/**
+      serviceId: gamification
+      strip-prefix: false
+    scores:
+      path: /scores/**
+      serviceId: gamification
+      strip-prefix: false
+    stats:
+      path: /stats/**
+      serviceId: gamification
+      strip-prefix: false
+
+# Switch Eureka-Usage on & off
+ribbon:
+  eureka:
+    enabled: true
+
+eureka:
+  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${registry.host:localhost}:${registry.port:8761}/eureka/
+    healthcheck:
+      enabled: true
+
+# Increase the Hystrix timeout to 60s (globally)
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+
+# set to OFF to avoid  log "pollution" if Eureka isn't up or found 
+logging:
+  level:
+    com:
+      netflix:
+        eureka: OFF
+        discovery: OFF
+
+# Spring Boot actuator
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: "*"
+        exclude: "shutdown"
+# to retrieve all configured Zuul routes at the /routes endpoint, we have to disable spring.boot.actuator´s authentication requirement
+  security:
+    enabled: false
+
+---
+# Adds admin routes for testing purposes
+spring:
+  profiles: test
+zuul:
+  routes:
+    gamification-admin:
+      path: /gamification/admin/**
+      serviceId: gamification
+      strip-prefix: false
+    multiplication-admin:
+      path: /multiplication/admin/**
+      serviceId: multiplication
+      strip-prefix: false
+
